@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+{% block title %}Trending - TuneFlow{% endblock %}
+
+{% block content %}
+<div class="trending-container">
+    <div class="trending-header">
+        <h1><i class="fas fa-chart-line"></i> Trending Now</h1>
+        <p>Most played songs on TuneFlow</p>
+    </div>
+
+    {% if tracks %}
+    <div class="track-list">
+        {% for track in tracks %}
+        <div class="track-item" data-track-id="{{ track.id }}">
+            <div class="track-rank">{{ loop.index }}</div>
+            <img class="track-cover" src="{{ track.cover_url or url_for('static', filename='img/default-cover.png') }}" alt="{{ track.title }}">
+            <div class="track-info">
+                <div class="track-title">{{ track.title }}</div>
+                <div class="track-artist">{{ track.artist or 'Unknown Artist' }}</div>
+            </div>
+            <div class="track-plays"><i class="fas fa-headphones"></i> {{ track.play_count }} plays</div>
+            <div class="track-duration">{{ (track.duration // 60) }}:{{ '%02d' % (track.duration % 60) }}</div>
+            <button class="track-play-btn" data-track-id="{{ track.id }}"><i class="fas fa-play"></i></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <i class="fas fa-chart-line"></i>
+        <p>No trending tracks yet</p>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+.trending-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 24px 32px;
+}
+.trending-header {
+    margin-bottom: 32px;
+}
+.trending-header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+.trending-header p {
+    color: var(--text-secondary);
+}
+.track-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.track-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px;
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    transition: background 0.2s;
+}
+.track-item:hover {
+    background: var(--bg-tertiary);
+}
+.track-rank {
+    width: 40px;
+    text-align: center;
+    font-weight: 600;
+    color: var(--accent-color);
+}
+.track-cover {
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    object-fit: cover;
+}
+.track-info {
+    flex: 1;
+}
+.track-title {
+    font-weight: 500;
+}
+.track-artist {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+.track-plays {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    min-width: 80px;
+    text-align: right;
+}
+.track-duration {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    width: 50px;
+    text-align: right;
+}
+.track-play-btn {
+    background: none;
+    border: none;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    cursor: pointer;
+    color: var(--accent-color);
+    transition: background 0.2s;
+}
+.track-play-btn:hover {
+    background: var(--bg-tertiary);
+}
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-secondary);
+}
+.empty-state i {
+    font-size: 64px;
+    margin-bottom: 16px;
+}
+@media (max-width: 768px) {
+    .trending-container { padding: 16px; }
+    .track-rank { width: 30px; }
+    .track-plays { display: none; }
+}
+</style>
+
+<script>
+document.querySelectorAll('.track-play-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const trackId = btn.getAttribute('data-track-id');
+        if (window.player) {
+            window.player.playTrack(parseInt(trackId));
+        }
+    });
+});
+document.querySelectorAll('.track-item').forEach(item => {
+    item.addEventListener('click', (e) => {
+        if (e.target.closest('.track-play-btn')) return;
+        const trackId = item.getAttribute('data-track-id');
+        if (trackId) window.location.href = `/track/${trackId}`;
+    });
+});
+</script>
+{% endblock %}

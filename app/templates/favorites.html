@@ -1,0 +1,288 @@
+{% extends "base.html" %}
+
+{% block title %}Liked Songs - TuneFlow{% endblock %}
+
+{% block content %}
+<div class="liked-page">
+    <div class="liked-header">
+        <div class="liked-icon-large">
+            <i class="fas fa-heart"></i>
+        </div>
+        <div class="liked-info">
+            <div class="liked-type">Playlist</div>
+            <h1>Liked Songs</h1>
+            <p>{{ tracks|length }} songs</p>
+        </div>
+        <button class="play-all-btn" id="playAllBtn"><i class="fas fa-play"></i> Play</button>
+    </div>
+
+    <div class="tracks-section">
+        <div class="tracks-header">
+            <span class="track-index">#</span>
+            <span class="track-title-header">Title</span>
+            <span class="track-album-header">Album</span>
+            <span class="track-duration-header"><i class="fas fa-clock"></i></span>
+        </div>
+        <div class="track-list">
+            {% for track in tracks %}
+            <div class="track-item" data-track-id="{{ track.id }}">
+                <span class="track-index">{{ loop.index }}</span>
+                <div class="track-info">
+                    <img class="track-cover-small" src="{{ track.cover_url or 'https://via.placeholder.com/40' }}">
+                    <div>
+                        <div class="track-title">{{ track.title }}</div>
+                        <div class="track-artist">{{ track.artist or 'Unknown Artist' }}</div>
+                    </div>
+                </div>
+                <div class="track-album">{{ track.album or '—' }}</div>
+                <div class="track-duration">{{ (track.duration // 60) }}:{{ '%02d' % (track.duration % 60) }}</div>
+                <button class="track-play-btn" data-track-id="{{ track.id }}">
+                    <i class="fas fa-play"></i>
+                </button>
+                <button class="track-unlike-btn" data-track-id="{{ track.id }}">
+                    <i class="fas fa-heart-broken"></i>
+                </button>
+            </div>
+            {% else %}
+            <div class="empty-tracks">
+                <p>You haven't liked any songs yet</p>
+                <p class="small">Tap the heart on any track to add it here</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<style>
+.liked-page {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+.liked-header {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    margin-bottom: 32px;
+    background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+    border-radius: 12px;
+    padding: 24px;
+}
+.liked-icon-large {
+    width: 100px;
+    height: 100px;
+    background: linear-gradient(135deg, #1db954, #1ed760);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+    color: white;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+}
+.liked-info {
+    flex: 1;
+}
+.liked-type {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-secondary);
+}
+.liked-info h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 8px 0;
+}
+.liked-info p {
+    color: var(--text-secondary);
+}
+.play-all-btn {
+    background: var(--accent-color);
+    border: none;
+    padding: 8px 24px;
+    border-radius: 40px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.play-all-btn:hover {
+    transform: scale(1.02);
+    filter: brightness(0.95);
+}
+.tracks-section {
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    overflow: hidden;
+}
+.tracks-header {
+    display: grid;
+    grid-template-columns: 40px 3fr 2fr 60px 60px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.track-list {
+    display: flex;
+    flex-direction: column;
+}
+.track-item {
+    display: grid;
+    grid-template-columns: 40px 3fr 2fr 60px 60px;
+    align-items: center;
+    padding: 8px 16px;
+    border-radius: 8px;
+    transition: background 0.2s;
+}
+.track-item:hover {
+    background: var(--bg-tertiary);
+}
+.track-index {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    text-align: center;
+}
+.track-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.track-cover-small {
+    width: 40px;
+    height: 40px;
+    border-radius: 6px;
+    object-fit: cover;
+}
+.track-title {
+    font-weight: 500;
+}
+.track-artist {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+.track-album {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.track-duration {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    text-align: right;
+}
+.track-play-btn, .track-unlike-btn {
+    background: none;
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: all 0.2s;
+}
+.track-play-btn:hover {
+    color: var(--accent-color);
+}
+.track-unlike-btn:hover {
+    background: rgba(239,68,68,0.1);
+    color: #ef4444;
+}
+.empty-tracks {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-secondary);
+}
+.small {
+    font-size: 0.8rem;
+    margin-top: 8px;
+}
+@media (max-width: 768px) {
+    .liked-header {
+        flex-direction: column;
+        text-align: center;
+    }
+    .liked-icon-large {
+        margin: 0 auto;
+    }
+    .play-all-btn {
+        margin-top: 8px;
+    }
+    .tracks-header {
+        grid-template-columns: 40px 3fr 60px;
+    }
+    .track-item {
+        grid-template-columns: 40px 3fr 60px;
+    }
+    .track-album-header, .track-album {
+        display: none;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const tracks = {{ tracks|tojson }};
+    const playAllBtn = document.getElementById('playAllBtn');
+    if (playAllBtn && window.player) {
+        playAllBtn.addEventListener('click', () => {
+            if (tracks.length) {
+                window.player.setQueue(tracks, 0);
+            }
+        });
+    }
+
+    // Play individual track
+    const playBtns = document.querySelectorAll('.track-play-btn');
+    playBtns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const trackId = btn.getAttribute('data-track-id');
+            if (window.player) {
+                // Play from the liked songs queue, starting at this track
+                const index = tracks.findIndex(t => t.id == trackId);
+                if (index !== -1) {
+                    window.player.setQueue(tracks, index);
+                } else {
+                    window.player.playTrack(parseInt(trackId));
+                }
+            }
+        });
+    });
+
+    // Unlike button
+    const unlikeBtns = document.querySelectorAll('.track-unlike-btn');
+    unlikeBtns.forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            const trackId = btn.getAttribute('data-track-id');
+            try {
+                const resp = await fetch(`/api/tracks/${trackId}/like`, { method: 'DELETE' });
+                if (resp.ok) {
+                    window.location.reload();
+                } else {
+                    alert('Failed to unlike');
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        });
+    });
+
+    // Track item click to detail
+    const trackItems = document.querySelectorAll('.track-item');
+    trackItems.forEach(item => {
+        item.addEventListener('click', (e) => {
+            if (e.target.closest('.track-play-btn') || e.target.closest('.track-unlike-btn')) return;
+            const trackId = item.getAttribute('data-track-id');
+            if (trackId) {
+                window.location.href = `/track/${trackId}`;
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

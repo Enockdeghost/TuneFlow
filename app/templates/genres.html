@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block title %}Genres - TuneFlow{% endblock %}
+
+{% block content %}
+<div class="genres-container">
+    <div class="genres-header">
+        <h1>Genres</h1>
+        <p>Explore music by genre</p>
+    </div>
+    <div class="genres-grid">
+        {% for genre in genres %}
+        <div class="genre-card" onclick="window.location.href='{{ url_for('frontend.genre_detail', genre_name=genre.name) }}'">
+            <div class="genre-icon">
+                {% set genre_icon = {
+                    'Pop': 'fa-music',
+                    'Rock': 'fa-guitar',
+                    'Hip Hop': 'fa-microphone-alt',
+                    'Electronic': 'fa-synth',
+                    'Jazz': 'fa-saxophone',
+                    'Classical': 'fa-violin',
+                    'R&B': 'fa-heart',
+                    'Country': 'fa-guitar',
+                    'Reggae': 'fa-drum',
+                    'Blues': 'fa-guitar',
+                    'Metal': 'fa-drum',
+                    'Folk': 'fa-guitar'
+                } %}
+                <i class="fas {{ genre_icon.get(genre.name, 'fa-headphones') }}"></i>
+            </div>
+            <div class="genre-name">{{ genre.name }}</div>
+            <div class="genre-count">{{ genre.track_count }} songs</div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+.genres-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 24px 32px;
+}
+.genres-header {
+    margin-bottom: 32px;
+}
+.genres-header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+.genres-header p {
+    color: var(--text-secondary);
+}
+.genres-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 24px;
+}
+.genre-card {
+    background: var(--bg-secondary);
+    border-radius: 20px;
+    padding: 32px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+.genre-card:hover {
+    background: var(--bg-tertiary);
+    transform: translateY(-5px);
+    box-shadow: 0 12px 20px rgba(0,0,0,0.2);
+}
+.genre-icon i {
+    font-size: 48px;
+    color: var(--accent-color);
+    margin-bottom: 16px;
+}
+.genre-name {
+    font-weight: 600;
+    font-size: 1.1rem;
+    margin-bottom: 6px;
+}
+.genre-count {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+@media (max-width: 768px) {
+    .genres-container { padding: 16px; }
+    .genres-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 16px; }
+    .genre-card { padding: 24px 16px; }
+    .genre-icon i { font-size: 36px; }
+}
+</style>
+{% endblock %}

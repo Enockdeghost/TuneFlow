@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+
+{% block title %}Listening History - TuneFlow{% endblock %}
+
+{% block content %}
+<div class="history-page">
+    <h1>Listening History</h1>
+    {% if events %}
+    <div class="track-list">
+        {% for event in events %}
+        <div class="track-item" data-track-id="{{ event.track.id }}">
+            <div class="history-date">{{ event.created_at.strftime('%b %d, %Y at %H:%M') }}</div>
+            <div class="track-info">
+                <img class="track-cover-small" src="{{ event.track.cover_url or 'https://via.placeholder.com/40' }}">
+                <div>
+                    <div class="track-title">{{ event.track.title }}</div>
+                    <div class="track-artist">{{ event.track.artist or 'Unknown Artist' }}</div>
+                </div>
+            </div>
+            <div class="track-duration">{{ (event.track.duration // 60) }}:{{ '%02d' % (event.track.duration % 60) }}</div>
+            <button class="track-play-btn" data-track-id="{{ event.track.id }}">
+                <i class="fas fa-play"></i>
+            </button>
+            {% if event.listened_seconds > 0 %}
+            <div class="listened-progress">
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: {{ (event.listened_seconds / event.track.duration * 100) if event.track.duration else 0 }}%"></div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <i class="fas fa-history"></i>
+        <p>No listening history yet</p>
+        <p class="small">Start playing some music to build your history</p>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+.history-page {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+.history-page h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 24px;
+}
+.track-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.track-item {
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    padding: 16px;
+    transition: background 0.2s;
+    cursor: pointer;
+}
+.track-item:hover {
+    background: var(--bg-tertiary);
+}
+.history-date {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+}
+.track-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+.track-cover-small {
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    object-fit: cover;
+}
+.track-title {
+    font-weight: 600;
+}
+.track-artist {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+.track-duration {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-left: auto;
+    padding-right: 12px;
+}
+.track-play-btn {
+    background: none;
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    color: var(--accent-color);
+}
+.listened-progress {
+    margin-top: 8px;
+}
+.progress-bar-container {
+    height: 4px;
+    background: var(--bg-tertiary);
+    border-radius: 2px;
+    overflow: hidden;
+}
+.progress-bar {
+    height: 100%;
+    background: var(--accent-color);
+    width: 0%;
+}
+.empty-state {
+    text-align: center;
+    padding: 80px 20px;
+    color: var(--text-secondary);
+}
+.empty-state i {
+    font-size: 64px;
+    margin-bottom: 16px;
+}
+.small {
+    font-size: 0.8rem;
+    margin-top: 8px;
+}
+@media (max-width: 768px) {
+    .track-item {
+        padding: 12px;
+    }
+    .track-play-btn {
+        margin-left: auto;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const playBtns = document.querySelectorAll('.track-play-btn');
+    playBtns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const trackId = btn.getAttribute('data-track-id');
+            if (window.player) {
+                window.player.playTrack(parseInt(trackId));
+            }
+        });
+    });
+
+    const trackItems = document.querySelectorAll('.track-item');
+    trackItems.forEach(item => {
+        item.addEventListener('click', (e) => {
+            if (e.target.closest('.track-play-btn')) return;
+            const trackId = item.getAttribute('data-track-id');
+            if (trackId) {
+                window.location.href = `/track/${trackId}`;
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

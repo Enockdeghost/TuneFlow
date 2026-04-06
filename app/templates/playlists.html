@@ -1,0 +1,211 @@
+{% extends "base.html" %}
+{% block title %}My Playlists - TuneFlow{% endblock %}
+
+{% block content %}
+<div class="playlists-container">
+    <div class="playlists-header">
+        <h1>My Playlists</h1>
+        <a href="{{ url_for('frontend.create_playlist') }}" class="create-playlist-btn">
+            <i class="fas fa-plus"></i> Create Playlist
+        </a>
+    </div>
+
+    {% if playlists %}
+    <div class="playlists-grid">
+        {% for playlist in playlists %}
+        <div class="playlist-card" data-playlist-id="{{ playlist.id }}">
+            <div class="playlist-cover">
+                {% if playlist.tracks %}
+                <img src="{{ playlist.tracks[0].cover_url or url_for('static', filename='img/default-cover.png') }}" alt="{{ playlist.name }}">
+                {% else %}
+                <div class="empty-cover"><i class="fas fa-music"></i></div>
+                {% endif %}
+                <button class="playlist-play-btn" data-playlist-id="{{ playlist.id }}"><i class="fas fa-play"></i></button>
+            </div>
+            <div class="playlist-info">
+                <div class="playlist-name">{{ playlist.name }}</div>
+                <div class="playlist-desc">{{ playlist.description or 'No description' }}</div>
+                <div class="playlist-meta">{{ playlist.tracks|length }} songs</div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <i class="fas fa-music"></i>
+        <p>You don't have any playlists yet</p>
+        <a href="{{ url_for('frontend.create_playlist') }}" class="btn-primary">Create Your First Playlist</a>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+.playlists-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 24px 32px;
+}
+.playlists-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+.playlists-header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+}
+.create-playlist-btn {
+    background: var(--accent-color);
+    color: #000;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 40px;
+    text-decoration: none;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
+}
+.create-playlist-btn:hover {
+    transform: scale(1.02);
+    filter: brightness(0.95);
+}
+.playlists-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 24px;
+}
+.playlist-card {
+    background: var(--bg-secondary);
+    border-radius: 20px;
+    padding: 20px;
+    transition: all 0.25s ease;
+    cursor: pointer;
+    display: flex;
+    gap: 16px;
+}
+.playlist-card:hover {
+    background: var(--bg-tertiary);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 20px rgba(0,0,0,0.2);
+}
+.playlist-cover {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    border-radius: 12px;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+.playlist-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.empty-cover {
+    width: 100%;
+    height: 100%;
+    background: var(--bg-tertiary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    color: var(--text-secondary);
+}
+.playlist-play-btn {
+    position: absolute;
+    bottom: 6px;
+    right: 6px;
+    background: var(--accent-color);
+    border: none;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transform: scale(0.8);
+    transition: all 0.2s;
+    cursor: pointer;
+    color: #000;
+}
+.playlist-card:hover .playlist-play-btn {
+    opacity: 1;
+    transform: scale(1);
+}
+.playlist-info {
+    flex: 1;
+}
+.playlist-name {
+    font-weight: 600;
+    font-size: 1.1rem;
+    margin-bottom: 4px;
+}
+.playlist-desc {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.playlist-meta {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-secondary);
+}
+.empty-state i {
+    font-size: 64px;
+    margin-bottom: 16px;
+}
+.btn-primary {
+    background: var(--accent-color);
+    color: #000;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 40px;
+    text-decoration: none;
+    display: inline-block;
+    margin-top: 16px;
+}
+@media (max-width: 768px) {
+    .playlists-container { padding: 16px; }
+    .playlists-grid { grid-template-columns: 1fr; }
+    .playlist-cover { width: 64px; height: 64px; }
+}
+</style>
+
+<script>
+document.querySelectorAll('.playlist-play-btn').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const playlistId = btn.getAttribute('data-playlist-id');
+        try {
+            const resp = await fetch(`/api/playlists/${playlistId}`);
+            const playlist = await resp.json();
+            if (playlist.tracks && playlist.tracks.length && window.player) {
+                window.player.setQueue(playlist.tracks, 0);
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    });
+});
+document.querySelectorAll('.playlist-card').forEach(card => {
+    card.addEventListener('click', (e) => {
+        if (e.target.closest('.playlist-play-btn')) return;
+        const playlistId = card.getAttribute('data-playlist-id');
+        if (playlistId) window.location.href = `/playlist/${playlistId}`;
+    });
+});
+</script>
+{% endblock %}

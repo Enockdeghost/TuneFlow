@@ -1,0 +1,361 @@
+{% extends "base.html" %}
+{% block title %}Search - TuneFlow{% endblock %}
+
+{% block content %}
+<div class="search-container">
+    <div class="search-header">
+        <h1>Search</h1>
+        <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" id="searchInput" placeholder="What do you want to listen to?" value="{{ q }}">
+            <button id="searchBtn"><i class="fas fa-arrow-right"></i></button>
+        </div>
+    </div>
+
+    <div class="search-filters">
+        <select id="genreFilter">
+            <option value="">All Genres</option>
+            <option value="Pop">Pop</option>
+            <option value="Rock">Rock</option>
+            <option value="Hip Hop">Hip Hop</option>
+            <option value="Electronic">Electronic</option>
+            <option value="Jazz">Jazz</option>
+            <option value="Classical">Classical</option>
+            <option value="R&B">R&B</option>
+            <option value="Country">Country</option>
+            <option value="Reggae">Reggae</option>
+            <option value="Blues">Blues</option>
+            <option value="Metal">Metal</option>
+            <option value="Folk">Folk</option>
+        </select>
+        <select id="sortFilter">
+            <option value="popular">Most Popular</option>
+            <option value="recent">Recently Added</option>
+            <option value="title">Title (A-Z)</option>
+        </select>
+    </div>
+
+    {% if q %}
+    <div class="search-results">
+        <h2>Results for "{{ q }}"</h2>
+        {% if tracks %}
+        <div class="results-grid">
+            {% for track in tracks %}
+            <div class="track-card" data-track-id="{{ track.id }}">
+                <div class="card-image">
+                    <img src="{{ track.cover_url or url_for('static', filename='img/default-cover.png') }}" alt="{{ track.title }}">
+                    <button class="play-button" data-track-id="{{ track.id }}"><i class="fas fa-play"></i></button>
+                </div>
+                <div class="card-info">
+                    <div class="card-title">{{ track.title }}</div>
+                    <div class="card-subtitle">{{ track.artist or 'Unknown Artist' }}</div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-music"></i>
+            <p>No tracks found for "{{ q }}"</p>
+            <p class="small">Try different keywords or check the spelling</p>
+        </div>
+        {% endif %}
+    </div>
+    {% else %}
+    <div class="recent-searches">
+        <div class="recent-header">
+            <h3>Recent Searches</h3>
+            <button id="clearRecentBtn" class="clear-btn">Clear</button>
+        </div>
+        <div id="recentList" class="recent-list"></div>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+.search-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 24px 32px;
+}
+.search-header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 24px;
+}
+.search-box {
+    display: flex;
+    align-items: center;
+    background: var(--bg-secondary);
+    border-radius: 60px;
+    padding: 8px 8px 8px 24px;
+    margin-bottom: 24px;
+    border: 1px solid var(--border-color);
+    transition: all 0.2s;
+}
+.search-box:focus-within {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 2px rgba(255,77,0,0.1);
+}
+.search-box i {
+    color: var(--text-secondary);
+    font-size: 1.2rem;
+}
+.search-box input {
+    flex: 1;
+    background: none;
+    border: none;
+    padding: 12px;
+    font-size: 1rem;
+    color: var(--text-primary);
+    outline: none;
+}
+.search-box button {
+    background: var(--accent-color);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 40px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.search-box button:hover {
+    background: var(--accent-hover);
+}
+.search-filters {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
+}
+.search-filters select {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 40px;
+    padding: 8px 20px;
+    font-size: 0.9rem;
+    color: var(--text-primary);
+    cursor: pointer;
+}
+.results-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 24px;
+}
+.track-card {
+    background: var(--bg-secondary);
+    border-radius: 16px;
+    padding: 16px;
+    transition: all 0.2s;
+    cursor: pointer;
+}
+.track-card:hover {
+    background: var(--bg-tertiary);
+    transform: translateY(-4px);
+}
+.card-image {
+    position: relative;
+    margin-bottom: 12px;
+    border-radius: 12px;
+    overflow: hidden;
+}
+.card-image img {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+}
+.play-button {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    background: var(--accent-color);
+    border: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transform: scale(0.8);
+    transition: all 0.2s;
+    cursor: pointer;
+    color: #000;
+}
+.track-card:hover .play-button {
+    opacity: 1;
+    transform: scale(1);
+}
+.card-title {
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.card-subtitle {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-secondary);
+}
+.empty-state i {
+    font-size: 64px;
+    margin-bottom: 16px;
+}
+.small {
+    font-size: 0.8rem;
+    margin-top: 8px;
+}
+.recent-searches {
+    margin-top: 40px;
+}
+.recent-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 20px;
+}
+.recent-header h3 {
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+.clear-btn {
+    background: none;
+    border: none;
+    color: var(--accent-color);
+    cursor: pointer;
+    font-size: 0.85rem;
+}
+.recent-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+.recent-item {
+    background: var(--bg-secondary);
+    padding: 8px 16px;
+    border-radius: 40px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.recent-item:hover {
+    background: var(--bg-tertiary);
+}
+@media (max-width: 768px) {
+    .search-container { padding: 16px; }
+    .results-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 16px; }
+    .play-button { width: 32px; height: 32px; }
+}
+</style>
+
+<script>
+// Recent searches using localStorage
+const RECENT_KEY = 'tuneflow_recent_searches';
+const MAX_RECENT = 10;
+
+function getRecentSearches() {
+    const stored = localStorage.getItem(RECENT_KEY);
+    return stored ? JSON.parse(stored) : [];
+}
+
+function saveRecentSearch(query) {
+    if (!query.trim()) return;
+    let recent = getRecentSearches();
+    recent = recent.filter(q => q !== query);
+    recent.unshift(query);
+    if (recent.length > MAX_RECENT) recent.pop();
+    localStorage.setItem(RECENT_KEY, JSON.stringify(recent));
+    renderRecentSearches();
+}
+
+function renderRecentSearches() {
+    const container = document.getElementById('recentList');
+    if (!container) return;
+    const recent = getRecentSearches();
+    if (recent.length === 0) {
+        container.innerHTML = '<div class="empty-state small">No recent searches</div>';
+        return;
+    }
+    container.innerHTML = recent.map(q => `<div class="recent-item" data-query="${escapeHtml(q)}">${escapeHtml(q)}</div>`).join('');
+    document.querySelectorAll('.recent-item').forEach(item => {
+        item.addEventListener('click', () => {
+            const query = item.getAttribute('data-query');
+            document.getElementById('searchInput').value = query;
+            performSearch();
+        });
+    });
+}
+
+function clearRecentSearches() {
+    localStorage.removeItem(RECENT_KEY);
+    renderRecentSearches();
+}
+
+function performSearch() {
+    const query = document.getElementById('searchInput').value.trim();
+    if (!query) return;
+    saveRecentSearch(query);
+    const genre = document.getElementById('genreFilter').value;
+    const sort = document.getElementById('sortFilter').value;
+    let url = `/search?q=${encodeURIComponent(query)}`;
+    if (genre) url += `&genre=${encodeURIComponent(genre)}`;
+    if (sort) url += `&sort=${encodeURIComponent(sort)}`;
+    window.location.href = url;
+}
+
+function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;');
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const searchBtn = document.getElementById('searchBtn');
+    const searchInput = document.getElementById('searchInput');
+    const genreFilter = document.getElementById('genreFilter');
+    const sortFilter = document.getElementById('sortFilter');
+    const clearRecentBtn = document.getElementById('clearRecentBtn');
+
+    if (searchBtn) searchBtn.addEventListener('click', performSearch);
+    if (searchInput) searchInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') performSearch();
+    });
+
+    // When filters change, if there is a query, reload with new filters
+    if (genreFilter && sortFilter && searchInput.value.trim()) {
+        const applyFilters = () => {
+            const query = searchInput.value.trim();
+            if (query) {
+                let url = `/search?q=${encodeURIComponent(query)}`;
+                if (genreFilter.value) url += `&genre=${encodeURIComponent(genreFilter.value)}`;
+                if (sortFilter.value) url += `&sort=${encodeURIComponent(sortFilter.value)}`;
+                window.location.href = url;
+            }
+        };
+        genreFilter.addEventListener('change', applyFilters);
+        sortFilter.addEventListener('change', applyFilters);
+    }
+
+    if (clearRecentBtn) clearRecentBtn.addEventListener('click', clearRecentSearches);
+    renderRecentSearches();
+
+    // Play buttons on results
+    document.querySelectorAll('.play-button').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const trackId = btn.getAttribute('data-track-id');
+            if (window.player) window.player.playTrack(parseInt(trackId));
+        });
+    });
+    document.querySelectorAll('.track-card').forEach(card => {
+        card.addEventListener('click', (e) => {
+            if (e.target.closest('.play-button')) return;
+            const trackId = card.getAttribute('data-track-id');
+            if (trackId) window.location.href = `/track/${trackId}`;
+        });
+    });
+});
+</script>
+{% endblock %}

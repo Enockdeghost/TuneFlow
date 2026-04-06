@@ -1,0 +1,302 @@
+{% extends "base.html" %}
+{% block title %}Upload Your Music - TuneFlow{% endblock %}
+
+{% block content %}
+<div class="upload-page">
+    <div class="upload-card">
+        <!-- Header -->
+        <div class="upload-header">
+            <h1>Upload Your Track</h1>
+            <p class="subtitle">Share your music with the world</p>
+        </div>
+
+        <form method="post" enctype="multipart/form-data">
+            <div class="form-grid">
+                <!-- Song Title -->
+                <div class="form-group">
+                    <label for="title">Song Title <span class="required">*</span></label>
+                    <input type="text" id="title" name="title" required 
+                           placeholder="Song title">
+                </div>
+
+                <!-- Artist Name -->
+                <div class="form-group">
+                    <label for="artist">Artist Name</label>
+                    <input type="text" id="artist" name="artist" 
+                           placeholder="Artist name">
+                </div>
+
+                <!-- Album -->
+                <div class="form-group">
+                    <label for="album">Album</label>
+                    <input type="text" id="album" name="album" 
+                           placeholder="Album name (optional)">
+                </div>
+
+                <!-- Genre -->
+                <div class="form-group">
+                    <label for="genre">Genre</label>
+                    <select id="genre" name="genre">
+                        <option value="">Select genre</option>
+                        <option value="Pop">Pop</option>
+                        <option value="Rock">Rock</option>
+                        <option value="Hip Hop">Hip Hop</option>
+                        <option value="Electronic">Electronic</option>
+                        <option value="Jazz">Jazz</option>
+                        <option value="Classical">Classical</option>
+                        <option value="R&B">R&B</option>
+                        <option value="Country">Country</option>
+                    </select>
+                </div>
+
+                <!-- Audio File -->
+                <div class="form-group full-width">
+                    <label for="audio_file">Audio File <span class="required">*</span></label>
+                    <div class="file-dropzone" id="audio-dropzone">
+                        <i class="lucide lucide-music"></i>
+                        <div class="drop-text" id="audio-text">
+                            <strong>Choose audio file</strong>
+                            <span>MP3, WAV, FLAC supported</span>
+                        </div>
+                        <input type="file" id="audio_file" name="audio_file" accept="audio/*" required>
+                    </div>
+                    <div id="audio-name-display" class="filename-display">
+                        <i class="lucide lucide-music"></i>
+                        <span id="audio-filename"></span>
+                    </div>
+                </div>
+
+                <!-- Cover Image -->
+                <div class="form-group full-width">
+                    <label for="cover_image">Cover Art <span class="optional">(optional)</span></label>
+                    <div class="file-dropzone" id="image-dropzone">
+                        <i class="lucide lucide-image"></i>
+                        <div class="drop-text" id="image-text">
+                            <strong>Choose cover image</strong>
+                            <span>JPG or PNG • Square recommended</span>
+                        </div>
+                        <input type="file" id="cover_image" name="cover_image" accept="image/*">
+                    </div>
+                    <div id="image-name-display" class="filename-display">
+                        <i class="lucide lucide-image"></i>
+                        <span id="image-filename"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Fixed Professional Button -->
+            <button type="submit" class="upload-button">
+                <i class="lucide lucide-upload"></i>
+                UPLOAD TRACK
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- Lucide Icons -->
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>
+    lucide.createIcons();
+
+    // Show filename for audio
+    document.getElementById('audio_file').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            document.getElementById('audio-filename').textContent = file.name;
+            document.getElementById('audio-name-display').style.display = 'flex';
+        }
+    });
+
+    // Show filename for image
+    document.getElementById('cover_image').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            document.getElementById('image-filename').textContent = file.name;
+            document.getElementById('image-name-display').style.display = 'flex';
+        }
+    });
+</script>
+
+<style>
+.upload-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    background: var(--bg-primary);
+}
+
+.upload-card {
+    width: 100%;
+    max-width: 640px;
+    background: var(--bg-secondary);
+    border-radius: 24px;
+    padding: 50px 45px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--border-color);
+}
+
+.upload-header {
+    text-align: center;
+    margin-bottom: 45px;
+}
+
+.upload-header h1 {
+    font-size: 2.1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    color: var(--text-secondary);
+    font-size: 1.05rem;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+}
+
+.form-group.full-width {
+    grid-column: span 2;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 9px;
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 0.97rem;
+}
+
+.required {
+    color: #ff4d00;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 14px 16px;
+    border-radius: 12px;
+    border: 1.5px solid var(--border-color);
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    font-size: 1rem;
+    transition: border-color 0.2s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    border-color: #ff4d00;
+    outline: none;
+}
+
+.file-dropzone {
+    border: 2px dashed var(--border-color);
+    border-radius: 16px;
+    padding: 38px 20px;
+    text-align: center;
+    background: var(--bg-tertiary);
+    transition: border-color 0.2s ease;
+    cursor: pointer;
+    position: relative;
+}
+
+.file-dropzone:hover {
+    border-color: #ff4d00;
+}
+
+.file-dropzone i {
+    font-size: 38px;
+    color: #ff4d00;
+    margin-bottom: 14px;
+}
+
+.drop-text strong {
+    display: block;
+    font-size: 1.02rem;
+    color: var(--text-primary);
+    margin-bottom: 5px;
+}
+
+.drop-text span {
+    color: var(--text-secondary);
+    font-size: 0.93rem;
+}
+
+.file-dropzone input[type="file"] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+}
+
+/* Clean Filename Display -->
+.filename-display {
+    margin-top: 10px;
+    padding: 12px 16px;
+    background: var(--bg-tertiary);
+    border: 1.5px solid #ff4d00;
+    border-radius: 12px;
+    display: none;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.98rem;
+    color: var(--text-primary);
+}
+
+.filename-display i {
+    color: #ff4d00;
+    font-size: 20px;
+}
+
+/* FIXED PROFESSIONAL BUTTON -->
+.upload-button {
+    margin-top: 38px;
+    width: 100%;
+    background: #ff4d00;
+    color: white;
+    border: none;
+    padding: 17px 32px;
+    border-radius: 50px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px; 
+    transition: all 0.25s ease;
+    box-shadow: 0 4px 15px rgba(255, 77, 0, 0.25);
+}
+
+.upload-button:hover {
+    background: #e64400;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(255, 77, 0, 0.35);
+}
+
+.upload-button:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 8px rgba(255, 77, 0, 0.25);
+}
+
+.upload-button i {
+    font-size: 22px;
+}
+
+@media (max-width: 640px) {
+    .upload-card {
+        padding: 40px 30px;
+    }
+    .form-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+}
+</style>
+{% endblock %}

@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+{% block title %}{{ artist }} - TuneFlow{% endblock %}
+
+{% block content %}
+<div class="artist-detail-container">
+    <div class="artist-hero">
+        <div class="artist-avatar">
+            {% if tracks %}
+            <img src="{{ tracks[0].cover_url or url_for('static', filename='img/default-artist.png') }}" alt="{{ artist }}">
+            {% else %}
+            <img src="{{ url_for('static', filename='img/default-artist.png') }}" alt="{{ artist }}">
+            {% endif %}
+        </div>
+        <div class="artist-info">
+            <h1>{{ artist }}</h1>
+            <p>{{ tracks|length }} songs • {{ tracks|sum(attribute='play_count') }} total plays</p>
+            <button class="follow-btn" id="followArtistBtn">Follow</button>
+        </div>
+    </div>
+
+    <div class="artist-tracks">
+        <h2>Popular Tracks</h2>
+        <div class="track-list">
+            {% for track in tracks %}
+            <div class="track-item" data-track-id="{{ track.id }}">
+                <div class="track-rank">{{ loop.index }}</div>
+                <img class="track-cover" src="{{ track.cover_url or url_for('static', filename='img/default-cover.png') }}">
+                <div class="track-info">
+                    <div class="track-title">{{ track.title }}</div>
+                    <div class="track-artist">{{ track.artist }}</div>
+                </div>
+                <div class="track-plays">{{ track.play_count }} plays</div>
+                <div class="track-duration">{{ (track.duration // 60) }}:{{ '%02d' % (track.duration % 60) }}</div>
+                <button class="track-play-btn" data-track-id="{{ track.id }}"><i class="fas fa-play"></i></button>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<style>
+.artist-detail-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 24px 32px;
+}
+.artist-hero {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    margin-bottom: 48px;
+    background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
+    border-radius: 28px;
+    padding: 32px;
+}
+.artist-avatar img {
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--accent-color);
+}
+.artist-info h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+.artist-info p {
+    color: var(--text-secondary);
+    margin-bottom: 16px;
+}
+.follow-btn {
+    background: var(--accent-color);
+    border: none;
+    padding: 8px 24px;
+    border-radius: 40px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.follow-btn:hover {
+    transform: scale(1.02);
+    filter: brightness(0.95);
+}
+.artist-tracks h2 {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+}
+.track-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.track-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px;
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    transition: background 0.2s;
+}
+.track-item:hover {
+    background: var(--bg-tertiary);
+}
+.track-rank {
+    width: 40px;
+    text-align: center;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+.track-cover {
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    object-fit: cover;
+}
+.track-info {
+    flex: 1;
+}
+.track-title {
+    font-weight: 500;
+}
+.track-artist {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+.track-plays {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    min-width: 80px;
+    text-align: right;
+}
+.track-duration {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    width: 50px;
+    text-align: right;
+}
+.track-play-btn {
+    background: none;
+    border: none;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    cursor: pointer;
+    color: var(--accent-color);
+    transition: background 0.2s;
+}
+.track-play-btn:hover {
+    background: var(--bg-tertiary);
+}
+@media (max-width: 768px) {
+    .artist-detail-container { padding: 16px; }
+    .artist-hero { flex-direction: column; text-align: center; }
+    .track-rank { width: 30px; }
+    .track-plays { display: none; }
+}
+</style>
+
+<script>
+document.querySelectorAll('.track-play-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const trackId = btn.getAttribute('data-track-id');
+        if (window.player) window.player.playTrack(parseInt(trackId));
+    });
+});
+document.querySelectorAll('.track-item').forEach(item => {
+    item.addEventListener('click', (e) => {
+        if (e.target.closest('.track-play-btn')) return;
+        const trackId = item.getAttribute('data-track-id');
+        if (trackId) window.location.href = `/track/${trackId}`;
+    });
+});
+// Follow button (placeholder – implement API later)
+document.getElementById('followArtistBtn')?.addEventListener('click', () => {
+    alert('Follow feature coming soon!');
+});
+</script>
+{% endblock %}

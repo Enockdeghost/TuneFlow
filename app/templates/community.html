@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+{% block title %}Community Uploads - TuneFlow{% endblock %}
+
+{% block content %}
+<div class="community-container">
+    <div class="community-header">
+        <h1>Community Uploads</h1>
+        <p>Songs shared by other users like you</p>
+        <a href="{{ url_for('frontend.upload_track') }}" class="upload-btn"><i class="fas fa-upload"></i> Upload Your Music</a>
+    </div>
+
+    {% if tracks %}
+    <div class="track-grid">
+        {% for track in tracks %}
+        <div class="track-card" data-track-id="{{ track.id }}">
+            <div class="card-image">
+                <img src="{{ track.cover_url or url_for('static', filename='img/default-cover.png') }}" alt="{{ track.title }}">
+                <button class="play-button" data-track-id="{{ track.id }}"><i class="fas fa-play"></i></button>
+            </div>
+            <div class="card-info">
+                <div class="card-title">{{ track.title }}</div>
+                <div class="card-subtitle">{{ track.artist or 'Unknown Artist' }}</div>
+                <div class="uploader-info"><i class="fas fa-user"></i> {{ track.uploader.username if track.uploader else 'User' }}</div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <i class="fas fa-music"></i>
+        <p>No community uploads yet</p>
+        <p class="small">Be the first to share your music!</p>
+        <a href="{{ url_for('frontend.upload_track') }}" class="btn-primary">Upload Now</a>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+.community-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 24px 32px;
+}
+.community-header {
+    margin-bottom: 32px;
+}
+.community-header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+.community-header p {
+    color: var(--text-secondary);
+    margin-bottom: 16px;
+}
+.upload-btn {
+    background: var(--accent-color);
+    color: #000;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 40px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    transition: transform 0.2s;
+}
+.upload-btn:hover {
+    transform: scale(1.02);
+    filter: brightness(0.95);
+}
+.track-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 24px;
+}
+.track-card {
+    background: var(--bg-secondary);
+    border-radius: 16px;
+    padding: 16px;
+    transition: all 0.2s;
+    cursor: pointer;
+}
+.track-card:hover {
+    background: var(--bg-tertiary);
+    transform: translateY(-4px);
+}
+.card-image {
+    position: relative;
+    margin-bottom: 12px;
+    border-radius: 12px;
+    overflow: hidden;
+}
+.card-image img {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+}
+.play-button {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    background: var(--accent-color);
+    border: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transform: scale(0.8);
+    transition: all 0.2s;
+    cursor: pointer;
+    color: #000;
+}
+.track-card:hover .play-button {
+    opacity: 1;
+    transform: scale(1);
+}
+.card-title {
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.card-subtitle {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+.uploader-info {
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    margin-top: 6px;
+}
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-secondary);
+}
+.empty-state i {
+    font-size: 64px;
+    margin-bottom: 16px;
+}
+.btn-primary {
+    background: var(--accent-color);
+    color: #000;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 40px;
+    text-decoration: none;
+    display: inline-block;
+    margin-top: 12px;
+}
+@media (max-width: 768px) {
+    .community-container { padding: 16px; }
+    .track-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 16px; }
+}
+</style>
+
+<script>
+document.querySelectorAll('.play-button').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const trackId = btn.getAttribute('data-track-id');
+        if (window.player) window.player.playTrack(parseInt(trackId));
+    });
+});
+document.querySelectorAll('.track-card').forEach(card => {
+    card.addEventListener('click', (e) => {
+        if (e.target.closest('.play-button')) return;
+        const trackId = card.getAttribute('data-track-id');
+        if (trackId) window.location.href = `/track/${trackId}`;
+    });
+});
+</script>
+{% endblock %}

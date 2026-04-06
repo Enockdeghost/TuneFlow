@@ -1,0 +1,400 @@
+{% extends "base.html" %}
+{% block title %}{{ profile_user.username }} - Profile{% endblock %}
+
+{% block content %}
+<div class="profile-page">
+    <div class="profile-header">
+        <div class="profile-avatar">
+            <img src="{{ profile_user.avatar or url_for('static', filename='img/default-avatar.png') }}" alt="{{ profile_user.username }}">
+        </div>
+        <div class="profile-info">
+            <h1>{{ profile_user.username }}</h1>
+            <p class="profile-bio">Member since {{ profile_user.created_at.strftime('%B %Y') }}</p>
+            <div class="profile-stats">
+                <div class="stat">
+                    <span class="stat-value">{{ stats.total_seconds // 3600 }}</span>
+                    <span class="stat-label">Hours</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-value">{{ stats.favorites }}</span>
+                    <span class="stat-label">Favorites</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-value">{{ stats.playlists }}</span>
+                    <span class="stat-label">Playlists</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-value">{{ stats.followers }}</span>
+                    <span class="stat-label">Followers</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-value">{{ stats.following }}</span>
+                    <span class="stat-label">Following</span>
+                </div>
+            </div>
+            {% if user and user.id == profile_user.id %}
+            <a href="{{ url_for('frontend.settings') }}" class="edit-profile-btn">Edit Profile</a>
+            {% else %}
+            <button class="follow-btn" id="followBtn" data-user-id="{{ profile_user.id }}">
+                Follow
+            </button>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="profile-section">
+        <h2>Top Artists</h2>
+        <div class="artists-grid">
+            {% for artist in stats.top_artists %}
+            <div class="artist-card">
+                <div class="artist-avatar">
+                    <img src="{{ url_for('static', filename='img/default-artist.png') }}" alt="{{ artist.name }}">
+                </div>
+                <div class="artist-name">{{ artist.name }}</div>
+                <div class="artist-plays">{{ artist.plays }} plays</div>
+            </div>
+            {% else %}
+            <p class="empty-message">No listening data yet</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="profile-section">
+        <h2>Top Genres</h2>
+        <div class="genres-list">
+            {% for genre in stats.top_genres %}
+            <div class="genre-tag">
+                <i class="fas fa-tag"></i> {{ genre.genre }}
+                <span class="play-count">{{ genre.plays }} plays</span>
+            </div>
+            {% else %}
+            <p class="empty-message">No genre data yet</p>
+            {% endfor %}
+        </div>
+    </div>
+
+   <div class="profile-section">
+    <h2>Your Uploads</h2>
+    {% if user_tracks %}
+    <div class="track-list">
+        {% for track in user_tracks %}
+        <div class="track-item" data-track-id="{{ track.id }}">
+            <img class="track-cover-small" src="{{ track.cover_url or url_for('static', filename='img/default-cover.png') }}">
+            <div class="track-info">
+                <div class="track-title">{{ track.title }}</div>
+                <div class="track-artist">{{ track.artist or 'Unknown Artist' }}</div>
+            </div>
+            <div class="track-duration">{{ (track.duration // 60) }}:{{ '%02d' % (track.duration % 60) }}</div>
+            <button class="track-play-btn" data-track-id="{{ track.id }}"><i class="fas fa-play"></i></button>
+            <button class="track-delete-btn" data-track-id="{{ track.id }}" data-track-title="{{ track.title }}">
+                <i class="fas fa-trash"></i>
+            </button>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="empty-message">No uploaded tracks yet</p>
+    {% endif %}
+ </div>
+</div>
+
+<style>
+.profile-page {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 24px 32px;
+}
+.profile-header {
+    display: flex;
+    gap: 32px;
+    background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
+    border-radius: 20px;
+    padding: 32px;
+    margin-bottom: 32px;
+}
+.profile-avatar img {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--accent-color);
+}
+.profile-info {
+    flex: 1;
+}
+.profile-info h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+.profile-bio {
+    color: var(--text-secondary);
+    margin-bottom: 16px;
+}
+.profile-stats {
+    display: flex;
+    gap: 24px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+}
+.stat {
+    text-align: center;
+}
+.stat-value {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--accent-color);
+    display: block;
+}
+.stat-label {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+.edit-profile-btn, .follow-btn {
+    background: var(--accent-color);
+    border: none;
+    padding: 8px 24px;
+    border-radius: 40px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    color: #000;
+}
+.track-delete-btn {
+    background: none;
+    border: none;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    cursor: pointer;
+    color: #ef4444;
+    transition: background 0.2s;
+}
+.track-delete-btn:hover {
+    background: rgba(239,68,68,0.1);
+}
+.follow-btn {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+}
+.follow-btn.following {
+    background: var(--accent-color);
+    color: #000;
+}
+.profile-section {
+    margin-bottom: 32px;
+}
+.profile-section h2 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 16px;
+}
+.artists-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 20px;
+}
+.artist-card {
+    text-align: center;
+    padding: 16px;
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    transition: all 0.2s;
+}
+.artist-card:hover {
+    background: var(--bg-tertiary);
+    transform: translateY(-4px);
+}
+.artist-avatar img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 12px;
+}
+.artist-name {
+    font-weight: 600;
+}
+.artist-plays {
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+}
+.genres-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+.genre-tag {
+    background: var(--bg-secondary);
+    padding: 8px 16px;
+    border-radius: 40px;
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+.play-count {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+.empty-message {
+    color: var(--text-secondary);
+    padding: 20px;
+    text-align: center;
+    background: var(--bg-secondary);
+    border-radius: 12px;
+}
+.track-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.track-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 10px;
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    transition: background 0.2s;
+}
+.track-item:hover {
+    background: var(--bg-tertiary);
+}
+.track-cover-small {
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    object-fit: cover;
+}
+.track-info {
+    flex: 1;
+}
+.track-title {
+    font-weight: 500;
+}
+.track-artist {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+.track-duration {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+.track-play-btn {
+    background: none;
+    border: none;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    cursor: pointer;
+    color: var(--accent-color);
+}
+@media (max-width: 768px) {
+    .profile-page { padding: 16px; }
+    .profile-header { flex-direction: column; text-align: center; }
+    .profile-stats { justify-content: center; }
+    .artists-grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); }
+}
+</style>
+<script>
+    function sanitizeText(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('.track-delete-btn').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                const trackId = btn.getAttribute('data-track-id');
+                const trackTitleRaw = btn.getAttribute('data-track-title');
+                const trackTitle = sanitizeText(trackTitleRaw);
+                
+                // Validate trackId is a number
+                if (!trackId || isNaN(parseInt(trackId))) {
+                    alert('Invalid track ID');
+                    return;
+                }
+                
+                if (confirm(`Delete "${trackTitle}" permanently?`)) {
+                    try {
+                        const resp = await fetch(`/api/user/delete-track/${encodeURIComponent(trackId)}`, {
+                            method: 'DELETE',
+                            credentials: 'same-origin'
+                        });
+                        const data = await resp.json();
+                        if (resp.ok) {
+                            alert('Track deleted successfully');
+                            location.reload();
+                        } else {
+                            alert(data.error || 'Deletion failed');
+                        }
+                    } catch (err) {
+                        console.error(err);
+                        alert('Error deleting track');
+                    }
+                }
+            });
+        });
+
+        const followBtn = document.getElementById('followBtn');
+        if (followBtn) {
+            followBtn.addEventListener('click', async () => {
+                const userId = followBtn.getAttribute('data-user-id');
+                if (!userId || isNaN(parseInt(userId))) {
+                    alert('Invalid user ID');
+                    return;
+                }
+                const isFollowing = followBtn.classList.contains('following');
+                const url = isFollowing ? `/api/social/unfollow/${encodeURIComponent(userId)}` : `/api/social/follow/${encodeURIComponent(userId)}`;
+                try {
+                    const resp = await fetch(url, {
+                        method: 'POST',
+                        credentials: 'same-origin'
+                    });
+                    if (resp.ok) {
+                        if (isFollowing) {
+                            followBtn.classList.remove('following');
+                            followBtn.textContent = 'Follow';
+                        } else {
+                            followBtn.classList.add('following');
+                            followBtn.textContent = 'Unfollow';
+                        }
+                    } else {
+                        alert('Action failed');
+                    }
+                } catch (err) {
+                    console.error(err);
+                }
+            });
+        }
+
+        document.querySelectorAll('.track-play-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const trackId = btn.getAttribute('data-track-id');
+                if (trackId && !isNaN(parseInt(trackId)) && window.player) {
+                    window.player.playTrack(parseInt(trackId));
+                }
+            });
+        });
+
+        document.querySelectorAll('.track-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                if (e.target.closest('.track-play-btn') || e.target.closest('.track-delete-btn')) return;
+                const trackId = item.getAttribute('data-track-id');
+                if (trackId && !isNaN(parseInt(trackId))) {
+                    window.location.href = `/track/${encodeURIComponent(trackId)}`;
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

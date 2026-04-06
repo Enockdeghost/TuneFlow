@@ -1,0 +1,403 @@
+{% extends "base.html" %}
+{% block title %}Your Library - TuneFlow{% endblock %}
+
+{% block content %}
+<div class="library-container">
+    <div class="library-header">
+        <h1>Your Library</h1>
+    </div>
+
+    <div class="library-tabs">
+        <button class="tab-btn active" data-tab="playlists">Playlists</button>
+        <button class="tab-btn" data-tab="artists">Artists</button>
+        <button class="tab-btn" data-tab="albums">Albums</button>
+        <button class="tab-btn" data-tab="liked">Liked Songs</button>
+    </div>
+
+    <!-- Playlists Tab -->
+    <div class="tab-content active" id="playlists-tab">
+        {% if playlists %}
+        <div class="card-grid">
+            {% for playlist in playlists %}
+            <div class="playlist-card" data-playlist-id="{{ playlist.id }}">
+                <div class="card-image">
+                    {% if playlist.tracks %}
+                    <img src="{{ playlist.tracks[0].cover_url or url_for('static', filename='img/default-cover.png') }}" alt="{{ playlist.name }}">
+                    {% else %}
+                    <div class="empty-cover"><i class="fas fa-music"></i></div>
+                    {% endif %}
+                    <button class="play-button" data-playlist-id="{{ playlist.id }}"><i class="fas fa-play"></i></button>
+                </div>
+                <div class="card-info">
+                    <div class="card-title">{{ playlist.name }}</div>
+                    <div class="card-subtitle">{{ playlist.tracks|length }} songs</div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-list"></i>
+            <p>No playlists yet</p>
+            <a href="{{ url_for('frontend.create_playlist') }}" class="btn-primary">Create Playlist</a>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Artists Tab -->
+    <div class="tab-content" id="artists-tab">
+        {% if artists %}
+        <div class="card-grid">
+            {% for artist in artists %}
+            <div class="artist-card" onclick="window.location.href='{{ url_for('frontend.artist_detail', artist_name=artist.name) }}'">
+                <div class="card-image">
+                    <img src="{{ artist.cover_url }}" alt="{{ artist.name }}">
+                </div>
+                <div class="card-info">
+                    <div class="card-title">{{ artist.name }}</div>
+                    <div class="card-subtitle">{{ artist.track_count }} songs</div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-user"></i>
+            <p>No artists in your library</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Albums Tab -->
+    <div class="tab-content" id="albums-tab">
+        {% if albums %}
+        <div class="card-grid">
+            {% for album in albums %}
+            <div class="album-card" data-album="{{ album.name }}">
+                <div class="card-image">
+                    <img src="{{ album.cover_url or url_for('static', filename='img/default-cover.png') }}" alt="{{ album.name }}">
+                    <button class="play-button" data-album="{{ album.name }}"><i class="fas fa-play"></i></button>
+                </div>
+                <div class="card-info">
+                    <div class="card-title">{{ album.name }}</div>
+                    <div class="card-subtitle">{{ album.artist }}</div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-compact-disc"></i>
+            <p>No albums in your library</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Liked Songs Tab -->
+    <div class="tab-content" id="liked-tab">
+        {% if favorites %}
+        <div class="track-list">
+            {% for track in favorites %}
+            <div class="track-item" data-track-id="{{ track.id }}">
+                <div class="track-rank">{{ loop.index }}</div>
+                <img class="track-cover" src="{{ track.cover_url or url_for('static', filename='img/default-cover.png') }}">
+                <div class="track-info">
+                    <div class="track-title">{{ track.title }}</div>
+                    <div class="track-artist">{{ track.artist or 'Unknown Artist' }}</div>
+                </div>
+                <div class="track-duration">{{ (track.duration // 60) }}:{{ '%02d' % (track.duration % 60) }}</div>
+                <button class="track-play-btn" data-track-id="{{ track.id }}"><i class="fas fa-play"></i></button>
+                <button class="track-unlike-btn" data-track-id="{{ track.id }}"><i class="fas fa-heart-broken"></i></button>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-heart"></i>
+            <p>No liked songs yet</p>
+            <p class="small">Tap the heart on any track to add it here</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.library-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 24px 32px;
+}
+.library-header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 28px;
+}
+.library-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 32px;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 8px;
+}
+.tab-btn {
+    background: none;
+    border: none;
+    padding: 8px 20px;
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    cursor: pointer;
+    border-radius: 40px;
+    transition: all 0.2s;
+}
+.tab-btn.active {
+    background: var(--accent-color);
+    color: #000;
+}
+.tab-content {
+    display: none;
+}
+.tab-content.active {
+    display: block;
+}
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 24px;
+}
+.playlist-card, .artist-card, .album-card {
+    background: var(--bg-secondary);
+    border-radius: 16px;
+    padding: 16px;
+    transition: all 0.2s;
+    cursor: pointer;
+}
+.playlist-card:hover, .artist-card:hover, .album-card:hover {
+    background: var(--bg-tertiary);
+    transform: translateY(-4px);
+}
+.card-image {
+    position: relative;
+    margin-bottom: 12px;
+    border-radius: 12px;
+    overflow: hidden;
+}
+.card-image img {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+}
+.empty-cover {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    background: var(--bg-tertiary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    color: var(--text-secondary);
+}
+.play-button {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    background: var(--accent-color);
+    border: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transform: scale(0.8);
+    transition: all 0.2s;
+    cursor: pointer;
+    color: #000;
+}
+.playlist-card:hover .play-button, .album-card:hover .play-button {
+    opacity: 1;
+    transform: scale(1);
+}
+.card-title {
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.card-subtitle {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.track-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.track-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px;
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    transition: background 0.2s;
+}
+.track-item:hover {
+    background: var(--bg-tertiary);
+}
+.track-rank {
+    width: 40px;
+    text-align: center;
+    color: var(--text-secondary);
+}
+.track-cover {
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    object-fit: cover;
+}
+.track-info {
+    flex: 1;
+}
+.track-title {
+    font-weight: 500;
+}
+.track-artist {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+.track-duration {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    width: 50px;
+    text-align: right;
+}
+.track-play-btn, .track-unlike-btn {
+    background: none;
+    border: none;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    cursor: pointer;
+    color: var(--accent-color);
+    transition: background 0.2s;
+}
+.track-play-btn:hover, .track-unlike-btn:hover {
+    background: var(--bg-tertiary);
+}
+.track-unlike-btn {
+    color: #ef4444;
+}
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-secondary);
+}
+.empty-state i {
+    font-size: 64px;
+    margin-bottom: 16px;
+}
+.btn-primary {
+    background: var(--accent-color);
+    color: #000;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 40px;
+    text-decoration: none;
+    display: inline-block;
+    margin-top: 12px;
+}
+.small {
+    font-size: 0.8rem;
+    margin-top: 8px;
+}
+@media (max-width: 768px) {
+    .library-container { padding: 16px; }
+    .card-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 16px; }
+    .track-rank { width: 30px; }
+    .track-duration { display: none; }
+}
+</style>
+
+<script>
+// Tab switching
+const tabBtns = document.querySelectorAll('.tab-btn');
+const tabContents = document.querySelectorAll('.tab-content');
+tabBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+        const tabId = btn.getAttribute('data-tab');
+        tabBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        tabContents.forEach(content => content.classList.remove('active'));
+        document.getElementById(`${tabId}-tab`).classList.add('active');
+    });
+});
+
+// Play entire playlist
+document.querySelectorAll('.play-button[data-playlist-id]').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const playlistId = btn.getAttribute('data-playlist-id');
+        try {
+            const resp = await fetch(`/api/playlists/${playlistId}`);
+            const playlist = await resp.json();
+            if (playlist.tracks && playlist.tracks.length && window.player) {
+                window.player.setQueue(playlist.tracks, 0);
+            }
+        } catch (err) { console.error(err); }
+    });
+});
+
+// Play album (placeholder – you'll need an endpoint or client-side grouping)
+document.querySelectorAll('.play-button[data-album]').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const albumName = btn.getAttribute('data-album');
+        alert('Album play coming soon!');
+    });
+});
+
+// Play track from liked list
+document.querySelectorAll('.track-play-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const trackId = btn.getAttribute('data-track-id');
+        if (window.player) window.player.playTrack(parseInt(trackId));
+    });
+});
+
+// Unlike track
+document.querySelectorAll('.track-unlike-btn').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const trackId = btn.getAttribute('data-track-id');
+        if (confirm('Remove from liked songs?')) {
+            try {
+                const resp = await fetch(`/api/tracks/${trackId}/like`, { method: 'DELETE' });
+                if (resp.ok) location.reload();
+                else alert('Failed');
+            } catch (err) { console.error(err); }
+        }
+    });
+});
+
+// Card clicks
+document.querySelectorAll('.playlist-card').forEach(card => {
+    card.addEventListener('click', (e) => {
+        if (e.target.closest('.play-button')) return;
+        const playlistId = card.getAttribute('data-playlist-id');
+        if (playlistId) window.location.href = `/playlist/${playlistId}`;
+    });
+});
+document.querySelectorAll('.artist-card').forEach(card => {
+    card.addEventListener('click', (e) => {
+        const artistName = card.querySelector('.card-title')?.innerText;
+        if (artistName) window.location.href = `/artist/${encodeURIComponent(artistName)}`;
+    });
+});
+</script>
+{% endblock %}

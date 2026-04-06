@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}Edit Playlist - TuneFlow{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <h1>Edit Playlist</h1>
+    <form method="post" action="{{ url_for('frontend.edit_playlist', playlist_id=playlist.id) }}">
+        <div class="form-group">
+            <label for="name">Playlist Name *</label>
+            <input type="text" name="name" id="name" value="{{ playlist.name }}" required>
+        </div>
+        <div class="form-group">
+            <label for="description">Description</label>
+            <textarea name="description" id="description" rows="3">{{ playlist.description or '' }}</textarea>
+        </div>
+        <div class="form-group checkbox">
+            <label>
+                <input type="checkbox" name="is_public" {% if playlist.is_public %}checked{% endif %}> Make this playlist public
+            </label>
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="btn-primary">Save Changes</button>
+            <a href="{{ url_for('frontend.playlist_detail', playlist_id=playlist.id) }}" class="btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+
+<style>
+/* same as create_playlist.html */
+.form-container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+}
+.form-container h1 {
+    margin-bottom: 24px;
+}
+.form-group {
+    margin-bottom: 20px;
+}
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+.form-group input, .form-group textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+}
+.checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.checkbox input {
+    width: auto;
+}
+.form-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 24px;
+}
+.btn-primary {
+    background: var(--accent-color);
+    color: #000;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 40px;
+    font-weight: 600;
+    cursor: pointer;
+}
+.btn-secondary {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 40px;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+}
+</style>
+{% endblock %}

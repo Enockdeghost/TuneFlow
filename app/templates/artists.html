@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block title %}Artists - TuneFlow{% endblock %}
+
+{% block content %}
+<div class="artists-container">
+    <div class="artists-header">
+        <h1>Artists</h1>
+        <p>Discover and follow your favourite artists</p>
+    </div>
+    <div class="artists-grid">
+        {% for artist in artists %}
+        <div class="artist-card" onclick="window.location.href='{{ url_for('frontend.artist_detail', artist_name=artist.name) }}'">
+            <div class="artist-image">
+                <img src="{{ artist.cover_url }}" alt="{{ artist.name }}">
+            </div>
+            <div class="artist-info">
+                <div class="artist-name">{{ artist.name }}</div>
+                <div class="artist-stats">
+                    <span><i class="fas fa-music"></i> {{ artist.track_count }} songs</span>
+                    <span><i class="fas fa-chart-line"></i> {{ artist.total_plays }} plays</span>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+.artists-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 24px 32px;
+}
+.artists-header {
+    margin-bottom: 32px;
+}
+.artists-header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+.artists-header p {
+    color: var(--text-secondary);
+}
+.artists-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 24px;
+}
+.artist-card {
+    background: var(--bg-secondary);
+    border-radius: 20px;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+.artist-card:hover {
+    background: var(--bg-tertiary);
+    transform: translateY(-5px);
+    box-shadow: 0 12px 20px rgba(0,0,0,0.2);
+}
+.artist-image img {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 16px;
+    border: 3px solid var(--accent-color);
+    transition: transform 0.2s;
+}
+.artist-card:hover .artist-image img {
+    transform: scale(1.02);
+}
+.artist-name {
+    font-weight: 600;
+    font-size: 1.1rem;
+    margin-bottom: 6px;
+}
+.artist-stats {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+.artist-stats i {
+    margin-right: 4px;
+}
+@media (max-width: 768px) {
+    .artists-container { padding: 16px; }
+    .artists-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 16px; }
+    .artist-image img { width: 100px; height: 100px; }
+}
+</style>
+{% endblock %}

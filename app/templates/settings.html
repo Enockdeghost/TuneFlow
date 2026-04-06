@@ -1,0 +1,360 @@
+{% extends "base.html" %}
+{% block title %}Settings - TuneFlow{% endblock %}
+
+{% block content %}
+<div class="settings-container">
+    <h1>Settings</h1>
+
+    <!-- Appearance Section -->
+    <div class="settings-section">
+        <h2>Appearance</h2>
+        <div class="setting-item">
+            <label>Theme</label>
+            <div class="theme-buttons">
+                <button class="theme-btn" data-theme="light"><i class="fas fa-sun"></i> Light</button>
+                <button class="theme-btn" data-theme="dark"><i class="fas fa-moon"></i> Dark</button>
+            </div>
+        </div>
+        <div class="setting-item">
+            <label>Accent Color</label>
+            <div class="color-buttons">
+                <button class="color-btn" data-color="purple" style="background-color: #8b5cf6;"></button>
+                <button class="color-btn" data-color="blue" style="background-color: #3b82f6;"></button>
+                <button class="color-btn" data-color="green" style="background-color: #10b981;"></button>
+                <button class="color-btn" data-color="pink" style="background-color: #ec489a;"></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Playback Section -->
+    <div class="settings-section">
+        <h2>Playback</h2>
+        <div class="setting-item">
+            <label>Default Playback Speed</label>
+            <select id="defaultSpeed">
+                <option value="0.5">0.5x</option>
+                <option value="0.75">0.75x</option>
+                <option value="1.0" selected>1.0x</option>
+                <option value="1.25">1.25x</option>
+                <option value="1.5">1.5x</option>
+                <option value="2.0">2.0x</option>
+            </select>
+        </div>
+        <div class="setting-item">
+            <label>Crossfade (seconds)</label>
+            <input type="number" id="crossfade" min="0" max="10" step="0.5" value="0">
+        </div>
+        <div class="setting-item">
+            <label>Gapless Playback</label>
+            <input type="checkbox" id="gapless">
+        </div>
+        <div class="setting-item">
+            <label>Streaming Quality</label>
+            <select id="quality">
+                <option value="low">Low (96 kbps)</option>
+                <option value="medium" selected>Medium (160 kbps)</option>
+                <option value="high">High (320 kbps)</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Account Section -->
+    <div class="settings-section">
+        <h2>Account</h2>
+        <div class="setting-item">
+            <label>Username</label>
+            <div class="inline-form">
+                <input type="text" id="newUsername" placeholder="{{ user.username }}" value="{{ user.username }}">
+                <button id="updateUsernameBtn" class="btn-secondary">Update</button>
+            </div>
+        </div>
+        <div class="setting-item">
+            <label>Change Password</label>
+            <div class="password-form">
+                <input type="password" id="currentPassword" placeholder="Current password">
+                <input type="password" id="newPassword" placeholder="New password">
+                <input type="password" id="confirmPassword" placeholder="Confirm new password">
+                <button id="updatePasswordBtn" class="btn-secondary">Change Password</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Danger Zone -->
+    <div class="settings-section danger-zone">
+        <h2>Danger Zone</h2>
+        <div class="setting-item">
+            <label>Delete Uploaded Tracks</label>
+            <p class="danger-description">Permanently remove all tracks you have uploaded.</p>
+            <button id="deleteTracksBtn" class="btn-danger">Delete My Uploads</button>
+        </div>
+        <div class="setting-item">
+            <label>Delete Account</label>
+            <p class="danger-description">Permanently delete your account and all associated data. This action cannot be undone.</p>
+            <button id="deleteAccountBtn" class="btn-danger">Delete My Account</button>
+        </div>
+    </div>
+</div>
+
+<style>
+.settings-container {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 24px 20px;
+}
+.settings-container h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 32px;
+}
+.settings-section {
+    background: var(--bg-secondary);
+    border-radius: 20px;
+    padding: 24px;
+    margin-bottom: 24px;
+}
+.settings-section h2 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+.setting-item {
+    margin-bottom: 20px;
+}
+.setting-item label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+.theme-buttons, .color-buttons {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+.theme-btn {
+    background: var(--bg-tertiary);
+    border: none;
+    padding: 8px 16px;
+    border-radius: 40px;
+    cursor: pointer;
+    font-weight: 500;
+    color: var(--text-primary);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+.theme-btn.active {
+    background: var(--accent-color);
+    color: #000;
+}
+.color-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+.color-btn.active {
+    border-color: var(--text-primary);
+    transform: scale(1.05);
+}
+select, input[type="number"], input[type="password"], input[type="text"] {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 10px 14px;
+    color: var(--text-primary);
+    width: 100%;
+}
+input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+}
+.inline-form {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+.inline-form input {
+    flex: 1;
+}
+.password-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.btn-secondary {
+    background: var(--bg-tertiary);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 40px;
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--text-primary);
+    transition: background 0.2s;
+}
+.btn-secondary:hover {
+    background: var(--accent-color);
+    color: #000;
+}
+.danger-zone {
+    border: 1px solid #ef4444;
+}
+.danger-description {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin: 8px 0;
+}
+.btn-danger {
+    background: rgba(239,68,68,0.1);
+    border: 1px solid #ef4444;
+    padding: 10px 20px;
+    border-radius: 40px;
+    font-weight: 600;
+    cursor: pointer;
+    color: #ef4444;
+    transition: all 0.2s;
+}
+.btn-danger:hover {
+    background: #ef4444;
+    color: white;
+}
+@media (max-width: 768px) {
+    .inline-form {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // Theme & color picker (same as before)
+    const currentTheme = localStorage.getItem('tuneflow_theme') || 'light';
+    const themeBtns = document.querySelectorAll('.theme-btn');
+    themeBtns.forEach(btn => {
+        if (btn.getAttribute('data-theme') === currentTheme) btn.classList.add('active');
+        btn.addEventListener('click', () => {
+            const theme = btn.getAttribute('data-theme');
+            if (theme === 'dark') {
+                document.body.classList.add('dark');
+                localStorage.setItem('tuneflow_theme', 'dark');
+            } else {
+                document.body.classList.remove('dark');
+                localStorage.setItem('tuneflow_theme', 'light');
+            }
+            themeBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        });
+    });
+    const currentAccent = localStorage.getItem('tuneflow_accent') || 'purple';
+    const colorBtns = document.querySelectorAll('.color-btn');
+    colorBtns.forEach(btn => {
+        if (btn.getAttribute('data-color') === currentAccent) btn.classList.add('active');
+        btn.addEventListener('click', () => {
+            const color = btn.getAttribute('data-color');
+            document.body.setAttribute('data-accent', color);
+            localStorage.setItem('tuneflow_accent', color);
+            colorBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        });
+    });
+
+    // Playback settings
+    const speedSelect = document.getElementById('defaultSpeed');
+    const crossfadeInput = document.getElementById('crossfade');
+    const gaplessCheckbox = document.getElementById('gapless');
+    const qualitySelect = document.getElementById('quality');
+
+    speedSelect.value = localStorage.getItem('defaultSpeed') || '1.0';
+    crossfadeInput.value = localStorage.getItem('crossfade') || '0';
+    gaplessCheckbox.checked = localStorage.getItem('gapless') === 'true';
+    qualitySelect.value = localStorage.getItem('quality') || 'medium';
+
+    speedSelect.addEventListener('change', () => {
+        localStorage.setItem('defaultSpeed', speedSelect.value);
+        if (window.player) window.player.speed = parseFloat(speedSelect.value);
+    });
+    crossfadeInput.addEventListener('change', () => localStorage.setItem('crossfade', crossfadeInput.value));
+    gaplessCheckbox.addEventListener('change', () => localStorage.setItem('gapless', gaplessCheckbox.checked));
+    qualitySelect.addEventListener('change', () => localStorage.setItem('quality', qualitySelect.value));
+
+    // Update username
+    document.getElementById('updateUsernameBtn').addEventListener('click', async () => {
+        const newUsername = document.getElementById('newUsername').value.trim();
+        if (!newUsername) return alert('Username cannot be empty');
+        try {
+            const resp = await fetch('/api/user/profile', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username: newUsername })
+            });
+            const data = await resp.json();
+            if (resp.ok) {
+                alert('Username updated. Please log in again.');
+                window.location.href = '/logout';
+            } else {
+                alert(data.error || 'Update failed');
+            }
+        } catch (err) { console.error(err); alert('Error'); }
+    });
+
+    // Change password
+    document.getElementById('updatePasswordBtn').addEventListener('click', async () => {
+        const current = document.getElementById('currentPassword').value;
+        const newPass = document.getElementById('newPassword').value;
+        const confirm = document.getElementById('confirmPassword').value;
+        if (!current || !newPass || !confirm) return alert('Please fill all fields');
+        if (newPass !== confirm) return alert('New passwords do not match');
+        if (newPass.length < 8) return alert('Password must be at least 8 characters');
+        try {
+            const resp = await fetch('/api/user/change-password', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ current_password: current, new_password: newPass })
+            });
+            const data = await resp.json();
+            if (resp.ok) {
+                alert('Password changed. Please log in again.');
+                window.location.href = '/logout';
+            } else {
+                alert(data.error || 'Change failed');
+            }
+        } catch (err) { console.error(err); alert('Error'); }
+    });
+
+    // Delete all user uploaded tracks
+    document.getElementById('deleteTracksBtn').addEventListener('click', async () => {
+        if (!confirm('Are you sure you want to delete ALL your uploaded tracks? This cannot be undone.')) return;
+        try {
+            const resp = await fetch('/api/user/delete-uploads', { method: 'DELETE' });
+            const data = await resp.json();
+            if (resp.ok) {
+                alert('All your uploaded tracks have been deleted.');
+                window.location.reload();
+            } else {
+                alert(data.error || 'Deletion failed');
+            }
+        } catch (err) { console.error(err); alert('Error'); }
+    });
+
+    // Delete account
+    document.getElementById('deleteAccountBtn').addEventListener('click', async () => {
+        if (!confirm('WARNING: This will permanently delete your account and all data (playlists, likes, uploads, etc.). This action is irreversible. Continue?')) return;
+        const confirmation = prompt('Type "DELETE" to confirm account deletion.');
+        if (confirmation !== 'DELETE') return alert('Account deletion cancelled.');
+        try {
+            const resp = await fetch('/api/user/delete-account', { method: 'DELETE' });
+            const data = await resp.json();
+            if (resp.ok) {
+                alert('Account deleted. You will be logged out.');
+                window.location.href = '/logout';
+            } else {
+                alert(data.error || 'Deletion failed');
+            }
+        } catch (err) { console.error(err); alert('Error'); }
+    });
+});
+</script>
+{% endblock %}

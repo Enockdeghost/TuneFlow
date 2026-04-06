@@ -1,0 +1,722 @@
+{% extends "base.html" %}
+{% block title %}Home - TuneFlow{% endblock %}
+
+{% block content %}
+<div class="home-container">
+    <!-- Hero Banner -->
+    <div class="hero">
+        <div class="hero-content">
+            <h1>Welcome to TuneFlow</h1>
+            <p>Stream millions of songs, create playlists, discover new music, and enjoy personalized mixes — all for free.</p>
+            <div class="hero-buttons">
+                {% if not user %}
+                <a href="{{ url_for('frontend.register') }}" class="btn btn-primary btn-hero">Get Started Free</a>
+                <a href="{{ url_for('frontend.login') }}" class="btn btn-secondary btn-hero">Login</a>
+                {% else %}
+                <a href="{{ url_for('frontend.library') }}" class="btn btn-primary btn-hero">Open Your Library</a>
+                {% endif %}
+                <a href="#local-music" class="btn btn-secondary btn-hero" id="localMusicLink">
+                    <i class="fas fa-music"></i> Local Music
+                </a>
+            </div>
+        </div>
+        <div class="hero-image">
+            <i class="fas fa-headphones-alt"></i>
+        </div>
+    </div>
+
+    <!-- Jump Back In -->
+    <section class="section">
+        <div class="section-header">
+            <h2><i class="fas fa-clock section-icon"></i> Jump Back In</h2>
+            <a href="{{ url_for('frontend.history') }}" class="see-all">See All <i class="fas fa-arrow-right"></i></a>
+        </div>
+        {% if recent_played and recent_played|length > 0 %}
+        <div class="card-grid horizontal-scroll">
+            {% for track in recent_played[:10] %}
+            <div class="track-card" data-track-id="{{ track.id }}">
+                <div class="card-image">
+                    <img src="{{ track.cover_url or url_for('static', filename='img/default-cover.png') }}" 
+                         alt="{{ track.title }}" loading="lazy">
+                    <button class="play-button" data-track-id="{{ track.id }}">
+                        <i class="fas fa-play"></i>
+                    </button>
+                </div>
+                <div class="card-info">
+                    <div class="card-title">{{ track.title }}</div>
+                    <div class="card-subtitle">{{ track.artist or 'Unknown Artist' }}</div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state-small">
+            <i class="fas fa-history"></i>
+            <p>No recently played tracks yet.<br>Start listening!</p>
+        </div>
+        {% endif %}
+    </section>
+
+    <!-- Made For You -->
+    <section class="section">
+        <div class="section-header">
+            <h2><i class="fas fa-star section-icon"></i> Made for You</h2>
+            <a href="{{ url_for('frontend.search') }}" class="see-all">See All <i class="fas fa-arrow-right"></i></a>
+        </div>
+        {% if made_for_you and made_for_you|length > 0 %}
+        <div class="card-grid">
+            {% for track in made_for_you[:10] %}
+            <div class="track-card" data-track-id="{{ track.id }}">
+                <div class="card-image">
+                    <img src="{{ track.cover_url or url_for('static', filename='img/default-cover.png') }}" 
+                         alt="{{ track.title }}" loading="lazy">
+                    <button class="play-button" data-track-id="{{ track.id }}">
+                        <i class="fas fa-play"></i>
+                    </button>
+                </div>
+                <div class="card-info">
+                    <div class="card-title">{{ track.title }}</div>
+                    <div class="card-subtitle">{{ track.artist or 'Unknown Artist' }}</div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state-small">
+            <i class="fas fa-headphones"></i>
+            <p>Personalized recommendations will appear as you listen more.</p>
+        </div>
+        {% endif %}
+    </section>
+
+    <!-- New Releases -->
+    <section class="section">
+        <div class="section-header">
+            <h2><i class="fas fa-newspaper section-icon"></i> New Releases</h2>
+            <a href="{{ url_for('frontend.search') }}?sort=recent" class="see-all">See All <i class="fas fa-arrow-right"></i></a>
+        </div>
+        <div class="card-grid">
+            {% for track in recent[:10] %}
+            <div class="track-card" data-track-id="{{ track.id }}">
+                <div class="card-image">
+                    <img src="{{ track.cover_url or url_for('static', filename='img/default-cover.png') }}" 
+                         alt="{{ track.title }}" loading="lazy">
+                    <button class="play-button" data-track-id="{{ track.id }}">
+                        <i class="fas fa-play"></i>
+                    </button>
+                </div>
+                <div class="card-info">
+                    <div class="card-title">{{ track.title }}</div>
+                    <div class="card-subtitle">{{ track.artist or 'Unknown Artist' }}</div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- Top Charts -->
+    <section class="section">
+        <div class="section-header">
+            <h2><i class="fas fa-chart-line section-icon"></i> Top Charts</h2>
+            <a href="{{ url_for('frontend.search') }}?sort=popular" class="see-all">See All <i class="fas fa-arrow-right"></i></a>
+        </div>
+        <div class="card-grid">
+            {% for track in trending[:10] %}
+            <div class="track-card" data-track-id="{{ track.id }}">
+                <div class="card-image">
+                    <img src="{{ track.cover_url or url_for('static', filename='img/default-cover.png') }}" 
+                         alt="{{ track.title }}" loading="lazy">
+                    <button class="play-button" data-track-id="{{ track.id }}">
+                        <i class="fas fa-play"></i>
+                    </button>
+                </div>
+                <div class="card-info">
+                    <div class="card-title">{{ track.title }}</div>
+                    <div class="card-subtitle">{{ track.artist or 'Unknown Artist' }}</div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- Popular Playlists -->
+    <section class="section">
+        <div class="section-header">
+            <h2><i class="fas fa-headphones section-icon"></i> Popular Playlists & Radio</h2>
+            <a href="{{ url_for('frontend.search') }}?tab=playlists" class="see-all">Browse All <i class="fas fa-arrow-right"></i></a>
+        </div>
+        <div class="card-grid">
+            {% for playlist in popular_playlists[:10] %}
+            <div class="track-card playlist-card" data-playlist-id="{{ playlist.id }}">
+                <div class="card-image">
+                    <img src="{{ playlist.cover_url or url_for('static', filename='img/default-cover.png') }}" 
+                         alt="{{ playlist.name }}" loading="lazy">
+                    <button class="play-button" data-playlist-id="{{ playlist.id }}">
+                        <i class="fas fa-play"></i>
+                    </button>
+                </div>
+                <div class="card-info">
+                    <div class="card-title">{{ playlist.name }}</div>
+                    <div class="card-subtitle">{{ playlist.description or 'Curated playlist' }}</div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- Local Music Section -->
+    <section class="section local-section" id="local-music">
+        <div class="section-header">
+            <h2><i class="fas fa-database section-icon"></i> Your Local Music</h2>
+            <button class="add-local-btn" id="addLocalFilesBtn">
+                <i class="fas fa-plus"></i> Add Files
+            </button>
+        </div>
+        <div class="drop-zone" id="dropZone">
+            <i class="fas fa-music"></i>
+            <p>Drag & drop audio files here or <span class="browse-link">browse</span></p>
+            <input type="file" id="localFileInput" multiple accept="audio/*" style="display: none;">
+        </div>
+        <div id="localTrackList" class="local-track-list"></div>
+    </section>
+</div>
+
+<style>
+/* ============== ORIGINAL STYLES + ENHANCED iPHONE RESPONSIVENESS ============== */
+.home-container {
+    max-width: 1480px;
+    margin: 0 auto;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.hero {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(145deg, var(--accent-color), #d43f00);
+    border-radius: 28px;
+    padding: 60px 50px;
+    margin-bottom: 50px;
+    color: #000;
+    box-shadow: 0 20px 40px -15px rgba(0,0,0,0.25);
+    overflow: hidden;
+}
+
+.hero-content h1 {
+    font-size: clamp(2.2rem, 6vw, 3.4rem);
+    font-weight: 700;
+    margin-bottom: 16px;
+    line-height: 1.1;
+}
+
+.hero-content p {
+    font-size: 1.1rem;
+    max-width: 460px;
+    opacity: 0.95;
+    margin-bottom: 28px;
+}
+
+.hero-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.btn-hero {
+    padding: 14px 28px;
+    border-radius: 50px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    min-height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-primary {
+    background: #000;
+    color: #fff;
+}
+
+.btn-secondary {
+    background: rgba(255,255,255,0.25);
+    color: #000;
+    backdrop-filter: blur(10px);
+}
+
+.btn-hero:hover {
+    transform: translateY(-4px);
+}
+
+.hero-image i {
+    font-size: 180px;
+    color: rgba(0,0,0,0.12);
+}
+
+/* Sections */
+.section {
+    margin-bottom: 52px;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.section-header h2 {
+    font-size: 1.55rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.section-icon {
+    font-size: 1.25rem;
+    color: var(--accent-color);
+}
+
+.see-all {
+    color: var(--accent-color);
+    text-decoration: none;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.see-all:hover {
+    gap: 10px;
+}
+
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 20px;
+}
+
+.horizontal-scroll {
+    display: flex;
+    overflow-x: auto;
+    gap: 18px;
+    padding-bottom: 16px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+}
+
+.horizontal-scroll .track-card {
+    flex: 0 0 180px;
+}
+
+.track-card, .playlist-card {
+    background: var(--bg-secondary);
+    border-radius: 20px;
+    padding: 14px;
+    transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+}
+
+.track-card:hover, .playlist-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 30px -10px rgba(0,0,0,0.25);
+    background: var(--bg-tertiary);
+}
+
+.card-image {
+    position: relative;
+    margin-bottom: 14px;
+    border-radius: 14px;
+    overflow: hidden;
+}
+
+.card-image img {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+
+.track-card:hover .card-image img {
+    transform: scale(1.06);
+}
+
+.play-button {
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    background: var(--accent-color);
+    color: #000;
+    border: none;
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transform: scale(0.7) translateY(15px);
+    transition: all 0.25s ease;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+}
+
+.track-card:hover .play-button,
+.playlist-card:hover .play-button {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+}
+
+.card-title {
+    font-weight: 600;
+    font-size: 1rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.card-subtitle {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Local Music */
+.local-section {
+    border-top: 1px solid var(--border-color);
+    padding-top: 32px;
+}
+
+.add-local-btn {
+    background: var(--bg-tertiary);
+    border: none;
+    padding: 10px 18px;
+    border-radius: 50px;
+    font-weight: 500;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.drop-zone {
+    background: var(--bg-secondary);
+    border: 2px dashed var(--border-color);
+    border-radius: 24px;
+    padding: 50px 20px;
+    text-align: center;
+    margin-bottom: 24px;
+    cursor: pointer;
+}
+
+.drop-zone.drag-over {
+    background: var(--bg-tertiary);
+    border-color: var(--accent-color);
+    transform: scale(0.97);
+}
+
+.drop-zone i {
+    font-size: 52px;
+    margin-bottom: 14px;
+    color: var(--text-secondary);
+}
+
+.local-track-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.local-track-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 16px;
+    background: var(--bg-secondary);
+    border-radius: 16px;
+}
+
+.local-track-item:hover {
+    background: var(--bg-tertiary);
+}
+
+.local-track-cover {
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    background: var(--bg-tertiary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: var(--text-secondary);
+}
+
+.local-track-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.local-track-title {
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.local-track-artist {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.local-track-play {
+    background: none;
+    border: none;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    cursor: pointer;
+    color: var(--accent-color);
+}
+
+.empty-state-small {
+    text-align: center;
+    padding: 50px 20px;
+    background: var(--bg-secondary);
+    border-radius: 24px;
+    color: var(--text-secondary);
+}
+
+.empty-state-small i {
+    font-size: 52px;
+    margin-bottom: 16px;
+    color: var(--accent-color);
+}
+
+/* ============== ENHANCED iPHONE & MOBILE RESPONSIVENESS ============== */
+@media (max-width: 768px) {
+    .home-container { 
+        padding: 16px 12px; 
+    }
+    
+    .hero {
+        flex-direction: column;
+        text-align: center;
+        padding: 48px 24px;
+        gap: 32px;
+        border-radius: 24px;
+        margin-bottom: 40px;
+    }
+    
+    .hero-content h1 {
+        font-size: 2.4rem;
+    }
+    
+    .hero-image { 
+        display: none; 
+    }
+    
+    .hero-buttons {
+        justify-content: center;
+        width: 100%;
+    }
+    
+    .btn-hero {
+        padding: 16px 24px;
+        font-size: 1.05rem;
+        width: 100%;
+        max-width: 280px;
+    }
+
+    .card-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 16px;
+    }
+    
+    .horizontal-scroll {
+        gap: 16px;
+        padding-bottom: 20px;
+    }
+    
+    .horizontal-scroll .track-card {
+        flex: 0 0 155px;
+    }
+    
+    .play-button {
+        width: 42px;
+        height: 42px;
+        bottom: 10px;
+        right: 10px;
+    }
+    
+    .section-header h2 {
+        font-size: 1.4rem;
+    }
+    
+    .section {
+        margin-bottom: 44px;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero {
+        padding: 40px 20px;
+    }
+    
+    .hero-content h1 {
+        font-size: 2.2rem;
+    }
+    
+    .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .see-all {
+        font-size: 0.95rem;
+    }
+    
+    .drop-zone {
+        padding: 40px 20px;
+    }
+}
+</style>
+
+<script>
+// Your original script (unchanged)
+const localTracks = [];
+window.localTracks = localTracks;
+
+document.addEventListener('DOMContentLoaded', () => {
+    const fileInput = document.getElementById('localFileInput');
+    const dropZone = document.getElementById('dropZone');
+    const addBtn = document.getElementById('addLocalFilesBtn');
+    const trackListDiv = document.getElementById('localTrackList');
+    const browseLink = document.querySelector('.browse-link');
+
+    function escapeHtml(str) {
+        return str ? str.replace(/[&<>"']/g, m => ({
+            '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+        })[m]) : '';
+    }
+
+    function handleFiles(files) {
+        const audioFiles = Array.from(files).filter(f => f.type.startsWith('audio/'));
+        
+        audioFiles.forEach(file => {
+            const blobUrl = URL.createObjectURL(file);
+            const trackId = 'local_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+
+            localTracks.push({
+                id: trackId,
+                name: file.name.replace(/\.[^/.]+$/, ""),
+                artist: "Local File",
+                blobUrl: blobUrl,
+                duration: 0,
+                file: file
+            });
+        });
+
+        renderLocalTracks();
+    }
+
+    function renderLocalTracks() {
+        trackListDiv.innerHTML = localTracks.map(track => `
+            <div class="local-track-item" data-id="${track.id}">
+                <div class="local-track-cover"><i class="fas fa-file-audio"></i></div>
+                <div class="local-track-info">
+                    <div class="local-track-title">${escapeHtml(track.name)}</div>
+                    <div class="local-track-artist">${escapeHtml(track.artist)}</div>
+                </div>
+                <button class="local-track-play" data-id="${track.id}">
+                    <i class="fas fa-play"></i>
+                </button>
+            </div>
+        `).join('');
+
+        document.querySelectorAll('.local-track-play').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const id = btn.dataset.id;
+                const track = localTracks.find(t => t.id === id);
+                if (track && window.player) {
+                    window.player.playLocalTrack(track);
+                }
+            });
+        });
+    }
+
+    addBtn.addEventListener('click', () => fileInput.click());
+    dropZone.addEventListener('click', () => fileInput.click());
+    
+    if (browseLink) {
+        browseLink.addEventListener('click', (e) => {
+            e.stopPropagation();
+            fileInput.click();
+        });
+    }
+
+    dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.classList.add('drag-over');
+    });
+
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('drag-over');
+        handleFiles(e.dataTransfer.files);
+    });
+
+    fileInput.addEventListener('change', (e) => {
+        handleFiles(e.target.files);
+        fileInput.value = '';
+    });
+
+    document.getElementById('localMusicLink')?.addEventListener('click', (e) => {
+        e.preventDefault();
+        document.getElementById('local-music').scrollIntoView({ behavior: 'smooth' });
+    });
+
+    document.querySelectorAll('.play-button').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const trackId = btn.dataset.trackId || btn.dataset.playlistId;
+            if (trackId && window.player) {
+                if (btn.dataset.playlistId) {
+                    window.player.playPlaylist(trackId);
+                } else {
+                    window.player.playTrack(parseInt(trackId));
+                }
+            }
+        });
+    });
+
+    document.querySelectorAll('.track-card[data-track-id]').forEach(card => {
+        card.addEventListener('click', (e) => {
+            if (e.target.closest('.play-button')) return;
+            const id = card.dataset.trackId;
+            if (id) window.location.href = `/track/${id}`;
+        });
+    });
+
+    document.querySelectorAll('.playlist-card').forEach(card => {
+        card.addEventListener('click', (e) => {
+            if (e.target.closest('.play-button')) return;
+            const id = card.dataset.playlistId;
+            if (id) window.location.href = `/playlist/${id}`;
+        });
+    });
+});
+</script>
+{% endblock %}
