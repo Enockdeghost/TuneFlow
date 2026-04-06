@@ -19,3 +19,4 @@ marshmallow==3.23.1
 python-dateutil==2.9.0
 requests==2.32.3
 setuptools==75.8.0
+gunicorn==23.0.0
