@@ -1,6 +1,4 @@
-Got it! You want a **clean, GitHub-ready, single-page README** without environment variables, separate setup instructions, or extra clutter—just **project showcase, features, tech stack, project tree, and screenshots**. Here’s a polished version:
 
-```markdown
 # 🎵 TuneFlow – Music Streaming Redefined
 
 [![Python](https://img.shields.io/badge/Python-3.12-blue)](https://www.python.org/) 
