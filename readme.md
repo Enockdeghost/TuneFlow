@@ -68,23 +68,4 @@ TuneFlow/
 
 ---
 
-## 🌐 Live Preview
-
-![Player Preview](https://via.placeholder.com/600x300?text=Music+Player+Preview)  
-![Dashboard Preview](https://via.placeholder.com/600x300?text=Admin+Dashboard+Preview)
-
----
-
-## 🤝 Contributing
-
-1. Fork the repository  
-2. Open an issue to discuss changes  
-3. Submit pull requests  
-
----
-
-## 📜 License
-
-MIT License – see [LICENSE](LICENSE)
-```
 
